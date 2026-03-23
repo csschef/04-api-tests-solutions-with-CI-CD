@@ -55,4 +55,35 @@ describe("app integration", () => {
     expect(fetch).toHaveBeenCalledWith("https://dummyjson.com/posts");
     expect(result).toEqual(postData);
   });
+
+  test("fetchTags returns tags from API", async () => {
+    let tagsData = ["history", "science"];
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => tagsData,
+    });
+
+    const { fetchTags } = await import("../../src/api-service.js");
+    let result = await fetchTags();
+
+    expect(fetch).toHaveBeenCalledWith("https://dummyjson.com/posts/tags");
+    expect(result).toEqual(tagsData);
+  });
+
+  test("fetchPostsByTag returns posts for selected tag", async () => {
+    let tag = "history";
+    let taggedPostsData = { posts: [{ id: 2, title: "Tagged", tags: [tag] }] };
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => taggedPostsData,
+    });
+
+    const { fetchPostsByTag } = await import("../../src/api-service.js");
+    let result = await fetchPostsByTag(tag);
+
+    expect(fetch).toHaveBeenCalledWith("https://dummyjson.com/posts/tag/history");
+    expect(result).toEqual(taggedPostsData);
+  });
 });
